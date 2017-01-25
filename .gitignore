@@ -1,0 +1,9 @@
+*.crf
+*.d
+*.o
+*.axf
+*.map
+*.sct
+*.dep
+*.lnp
+/MDK-ARM/RazorClamDICE/*
