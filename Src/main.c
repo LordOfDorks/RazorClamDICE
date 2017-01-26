@@ -52,6 +52,7 @@
 #define DEFAULT_FILE_HANDLE_STDOUT (1)
 #define DEFAULT_FILE_HANDLE_STDIN (2)
 #define DEFAULT_FILE_HANDLE_STDERR (3)
+#define DEFAULT_FILE_HANDLE_WIFI (4)
 struct __FILE { int handle; };
 /* USER CODE END Includes */
 
@@ -63,12 +64,14 @@ RNG_HandleTypeDef hrng;
 SPI_HandleTypeDef hspi3;
 
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 FILE __stdout = {DEFAULT_FILE_HANDLE_STDOUT};
 FILE __stdin = {DEFAULT_FILE_HANDLE_STDIN};
 FILE __stderr = {DEFAULT_FILE_HANDLE_STDERR};
+FILE __wifi = {DEFAULT_FILE_HANDLE_WIFI};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,6 +82,7 @@ static void MX_RNG_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI3_Init(void);
+static void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -88,14 +92,14 @@ static void MX_SPI3_Init(void);
 /* USER CODE BEGIN 0 */
 int fputc(int ch, FILE *f)
 {
-    if(f->handle == DEFAULT_FILE_HANDLE_STDOUT)
+    if((f->handle == DEFAULT_FILE_HANDLE_STDOUT) || (f->handle == DEFAULT_FILE_HANDLE_STDERR))
     {
         while(HAL_UART_Transmit(&huart2, (uint8_t*)&ch, sizeof(uint8_t), HAL_MAX_DELAY) == HAL_BUSY);
         return ch;
     }
-    else if(f->handle == DEFAULT_FILE_HANDLE_STDERR)
+    else if(f->handle == DEFAULT_FILE_HANDLE_WIFI)
     {
-        while(HAL_UART_Transmit(&huart2, (uint8_t*)&ch, sizeof(uint8_t), HAL_MAX_DELAY) == HAL_BUSY);
+        while(HAL_UART_Transmit(&huart3, (uint8_t*)&ch, sizeof(uint8_t), HAL_MAX_DELAY) == HAL_BUSY);
         return ch;
     }
     return -1;
@@ -107,6 +111,12 @@ int fgetc(FILE *f)
     {
         int ch = 0;
         while(HAL_UART_Receive(&huart2, (uint8_t*)&ch, sizeof(uint8_t), HAL_MAX_DELAY) == HAL_BUSY);
+        return ch;
+    }
+    else if(f->handle == DEFAULT_FILE_HANDLE_WIFI)
+    {
+        int ch = 0;
+        while(HAL_UART_Receive(&huart3, (uint8_t*)&ch, sizeof(uint8_t), HAL_MAX_DELAY) == HAL_BUSY);
         return ch;
     }
     return -1;
@@ -135,6 +145,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_SPI3_Init();
+  MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
   printf("RazorClamDICE, %s built %s %s\r\n", RAZORCLAMVERSION, (char*)&__DATE__, (char*)&__TIME__);
@@ -155,6 +166,10 @@ int main(void)
       for(;;);
   }
   printf("TPM available and ready.\r\n");
+
+  uint8_t wifirsp[50] = {0};
+  fprintf(&__wifi, "AT\n");
+  fscanf(&__wifi, "%s", wifirsp);
 
   /* USER CODE END 2 */
 
@@ -212,9 +227,11 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_RNG;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_USART3
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_RNG;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
   PeriphClkInit.RngClockSelection = RCC_RNGCLKSOURCE_PLLSAI1;
@@ -334,6 +351,27 @@ static void MX_USART2_UART_Init(void)
 
 }
 
+/* USART3 init function */
+static void MX_USART3_UART_Init(void)
+{
+
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
@@ -350,8 +388,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);

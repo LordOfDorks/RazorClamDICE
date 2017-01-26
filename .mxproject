@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/src/RazorClamDICE/Inc
+HeaderPath=C:/git/RazorClamDICE/Inc
 HeaderFiles=usb_device.h;usbd_conf.h;usbd_desc.h;usbd_dfu_if.h;stm32l4xx_it.h;stm32l4xx_hal_conf.h;main.h;
-SourcePath=C:/src/RazorClamDICE/Src
+SourcePath=C:/git/RazorClamDICE/Src
 SourceFiles=usb_device.h;usbd_conf.h;usbd_desc.h;usbd_dfu_if.h;stm32l4xx_it.h;stm32l4xx_hal_conf.h;main.h;usb_device.c;usbd_conf.c;usbd_desc.c;usbd_dfu_if.c;stm32l4xx_it.c;stm32l4xx_hal_msp.c;stm32l4xx_hal_timebase_TIM.c;main.c;
 
 [PreviousLibFiles]
