@@ -68,7 +68,8 @@
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
+#define FULLSTOP(__WHY) FullStop(__WHY,__func__,__FILE__,__LINE__)
+void FullStop(const char *why, const char *func, const char *file, int line);
 /* USER CODE END Private defines */
 
 /**
