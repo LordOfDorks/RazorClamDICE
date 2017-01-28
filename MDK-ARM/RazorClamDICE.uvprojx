@@ -730,7 +730,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/Test</GroupName>
+          <GroupName>Application/UserCPP</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -773,7 +773,7 @@
                 <v6WtE>2</v6WtE>
                 <v6Rtti>2</v6Rtti>
                 <VariousControls>
-                  <MiscControls>--CPP</MiscControls>
+                  <MiscControls>--CPP --exceptions</MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
                   <IncludePath>../Middlewares/CryptoAPI,../inc</IncludePath>
@@ -809,6 +809,11 @@
               <FileName>Test.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Test.h</FilePath>
+            </File>
+            <File>
+              <FileName>Exception.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\Exception.cpp</FilePath>
             </File>
           </Files>
         </Group>

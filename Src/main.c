@@ -90,6 +90,7 @@ static void MX_SPI3_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+#ifndef NDEBUG
 int fputc(int ch, FILE *f)
 {
     if((f->handle == DEFAULT_FILE_HANDLE_STDOUT) || (f->handle == DEFAULT_FILE_HANDLE_STDERR))
@@ -113,22 +114,10 @@ int fgetc(FILE *f)
     return -1;
 }
 
-void FullStop(const char *why, const char *func, const char *file, int line)
-{
-    if(func != NULL)
-    {
-        printf("FULLSTOP(%s) in %s() [%s@%d]\r\n", why, func, file, line);
-    }
-    else
-    {
-        printf("ASSERT(%s) [%s@%d]\r\n", why, file, line);
-    }
-    for(;;);
-}
-
+#endif //#ifndef NDEBUG
 void __aeabi_assert(const char *expr, const char *file, int line)
 {
-    FullStop(expr, NULL, file, line);
+    FULLSTOP(expr);
     for(;;);
 }
 /* USER CODE END 0 */
@@ -162,7 +151,7 @@ int main(void)
 #ifdef SPECIFIC_CYCLE_DELAY
   TpmAdjustSpinWait(SPECIFIC_CYCLE_DELAY);
 #else
-  printf("ADD: #define SPECIFIC_CYCLE_DELAY (%d)\r\n", TpmAdjustSpinWait(DETECT_CYCLE_DELAY));
+  DebugPrintf("ADD: #define SPECIFIC_CYCLE_DELAY (%d)\r\n", TpmAdjustSpinWait(DETECT_CYCLE_DELAY));
 #endif
 #endif
 
@@ -174,7 +163,7 @@ int main(void)
       FULLSTOP("No TPM found!");
   }
   assert(retVal == HAL_OK);
-  printf("TPM available and ready.\r\n");
+  DebugPrintf("TPM available and ready.\r\n");
 
   testme();
   /* USER CODE END 2 */

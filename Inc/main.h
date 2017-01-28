@@ -46,6 +46,10 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /* USER CODE END Includes */
 
@@ -68,8 +72,109 @@
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+#ifndef NDEBUG
+#define DebugPrintf(...) printf(__VA_ARGS__)
 #define FULLSTOP(__WHY) FullStop(__WHY,__func__,__FILE__,__LINE__)
 void FullStop(const char *why, const char *func, const char *file, int line);
+#else
+#define DebugPrintf(...)
+#define FULLSTOP(__WHY) for(;;);
+#endif
+
+#ifdef __cplusplus
+} //extern "C"
+#ifndef NDEBUG
+#include "wolfssl/wolfcrypt/memory.h"
+typedef struct __ExceptionInfo
+{
+    unsigned int code;
+    char *func;
+    char *file;
+    char *auxInfo;
+    int line;
+    __ExceptionInfo* inner;
+} ExceptionInfo, *PExceptionInfo;
+
+#define MX_ENTRY(__proc) \
+try\
+{\
+    __proc;\
+}\
+catch(PExceptionInfo pInfo)\
+{\
+    PrintExceptionChain(pInfo);\
+    for(;;);\
+}\
+catch(...)\
+{\
+    printf("UNHANDLED EXCEPTION!\r\n");\
+    for(;;);\
+}
+#define MX_RETHROW(__code, __auxInfo, __inner) \
+{\
+    PExceptionInfo exception = (PExceptionInfo)wolfSSL_Malloc(sizeof(ExceptionInfo));\
+    memset(exception, 0x00, sizeof(*exception));\
+    exception->code = __code;\
+    exception->func = (char *)&__func__;\
+    exception->file = (char *)&__FILE__;\
+    exception->auxInfo = __auxInfo;\
+    exception->line = __LINE__;\
+    exception->inner = __inner;\
+    throw exception;\
+}
+#define MX_THROW(__code, __auxInfo) MX_RETHROW(__code, __auxInfo, NULL)
+#define MX_ASSERT(__lvalue, __rvalue, __auxInfo) \
+{\
+    if(__lvalue != __rvalue) MX_THROW(0, __auxInfo);\
+}
+#define MX_CALL(__proc, __expected, __auxInfo) \
+{\
+    unsigned int result = 0;\
+    if((result = __proc) != __expected)\
+    {\
+        MX_THROW(result, __auxInfo);\
+    }\
+}
+#define MX_WRAP(__code, __auxInfo) \
+catch(PExceptionInfo pInfo)\
+{\
+    MX_RETHROW(__code, __auxInfo, pInfo);\
+}
+void PrintExceptionChain(PExceptionInfo pInfo);
+#else //#ifndef NDEBUG
+#define MX_ENTRY(__proc) \
+try\
+{\
+    __proc;\
+}\
+catch(...)\
+{\
+    for(;;);\
+}
+#define MX_RETHROW(__code, __auxInfo, __inner) \
+{\
+    throw __code;\
+}
+#define MX_THROW(__code, __auxInfo) MX_RETHROW(__code, __auxInfo, NULL)
+#define MX_ASSERT(__lvalue, __rvalue, __auxInfo) \
+{\
+    if(__lvalue != __rvalue) MX_THROW(0, __auxInfo);\
+}
+#define MX_CALL(__proc, __expected, __auxInfo) \
+{\
+    unsigned int result = 0;\
+    if((result = __proc) != __expected)\
+    {\
+        MX_THROW(result, __auxInfo);\
+    }\
+}
+#define MX_WRAP(__code, __auxInfo) \
+catch(PExceptionInfo pInfo)\
+{\
+    MX_RETHROW(__code, __auxInfo, pInfo);\
+}
+#endif //#ifndef NDEBUG
+#endif //#ifdef __cplusplus
 /* USER CODE END Private defines */
 
 /**
