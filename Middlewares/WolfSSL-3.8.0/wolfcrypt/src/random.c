@@ -1248,6 +1248,31 @@ int wc_GenerateSeed(OS_Seed* os, byte* output, word32 sz)
 
         return 0;
     }
+#elif defined(STM32L4_RNG)
+    #undef RNG
+    #include "stm32l4xx_hal.h"
+    #define MIN(a,b) (((a)<(b))?(a):(b))
+    extern RNG_HandleTypeDef hrng;
+    /*
+     * wc_Generate a RNG seed using the hardware random number generator
+     * on the STM32F4 through the HAL abstraction.
+     */
+    int wc_GenerateSeed(OS_Seed* os, byte* output, word32 sz)
+    {
+        int i = 0;
+        while(i < sz) {
+            uint32_t random = 0;
+            if(HAL_RNG_GenerateRandomNumber(&hrng, &random) == HAL_OK) {
+                uint32_t iteration = MIN(sizeof(random), (sz - i));
+                memcpy(&output[i], (byte*)&random, iteration);
+                i += iteration;
+            } else {
+                return RNG_FAILURE_E;
+            }
+        }
+
+        return 0;
+    }
 #elif defined(STM32F2_RNG)
     #undef RNG
     #include "stm32f2xx_rng.h"

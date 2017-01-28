@@ -12,6 +12,7 @@ extern "C" {
 #include "wolfssl/wolfcrypt/hmac.h"
 #include "wolfssl/wolfcrypt/integer.h"
 #include "wolfssl/wolfcrypt/aes.h"
+#include "wolfssl/wolfcrypt/memory.h"
 }
 
 // Use the FreeRTOS heap
@@ -732,28 +733,28 @@ UINT16 _cpri__StartHash(TPM_ALG_ID hashAlg,
 
     switch (hashAlg) {
     case TPM_ALG_SHA1:
-        if ((hashState->state = malloc(sizeof(Sha))) != NULL)
+        if ((hashState->state = wolfSSL_Malloc(sizeof(Sha))) != NULL)
         {
             wc_InitSha((Sha*)hashState->state);
         }
         break;
 
     case TPM_ALG_SHA256:
-        if ((hashState->state = malloc(sizeof(Sha256))) != NULL)
+        if ((hashState->state = wolfSSL_Malloc(sizeof(Sha256))) != NULL)
         {
             wc_InitSha256((Sha256*)hashState->state);
         }
         break;
 
     case TPM_ALG_SHA384:
-        if ((hashState->state = malloc(sizeof(Sha384))) != NULL)
+        if ((hashState->state = wolfSSL_Malloc(sizeof(Sha384))) != NULL)
         {
             wc_InitSha384((Sha384*)hashState->state);
         }
         break;
 
     case TPM_ALG_SHA512:
-        if ((hashState->state = malloc(sizeof(Sha512))) != NULL)
+        if ((hashState->state = wolfSSL_Malloc(sizeof(Sha512))) != NULL)
         {
             wc_InitSha512((Sha512*)hashState->state);
         }
@@ -828,7 +829,7 @@ UINT16 _cpri__CompleteHash(PCPRI_HASH_STATE hashState,
         digestLen = 0;
         break;
     }
-    free(hashState->state);
+    wolfSSL_Free(hashState->state);
     memcpy(dOut, digest, MIN(digestLen, dOutSize));
 
     return (UINT16)MIN(digestLen, dOutSize);
@@ -918,7 +919,7 @@ UINT16 _cpri__StartHMAC(TPM_ALG_ID hashAlg,
         return 0;
     }
 
-    if (((context = (Hmac*)malloc(sizeof(Hmac))) == NULL) ||
+    if (((context = (Hmac*)wolfSSL_Malloc(sizeof(Hmac))) == NULL) ||
         (wc_HmacSetKey(context, type, key, keySize) != 0))
     {
         return CRYPT_FAIL;
@@ -969,7 +970,7 @@ UINT16 _cpri__CompleteHMAC(CPRI_HASH_STATE *hashState,
 
 Cleanup:
     memset(context, 0x00, sizeof(Hmac));
-    free(context);
+    wolfSSL_Free(context);
     return MIN(hmacLen, dOutSize);
 }
 
@@ -1020,7 +1021,7 @@ UINT16 _cpri__GenerateRandom(INT32 randomSize,
 {
     // Intialize if needed
     if ((platformRng == NULL) &&
-        (((platformRng = (WC_RNG*)malloc(sizeof(WC_RNG))) == NULL) ||
+        (((platformRng = (WC_RNG*)wolfSSL_Malloc(sizeof(WC_RNG))) == NULL) ||
             (wc_InitRng(platformRng) != 0)))
     {
         return 0;
@@ -1918,7 +1919,7 @@ AES_create_key(const unsigned char *userKey,
     TPM2B* keyContext = NULL;
 
     // Remember the key
-    if ((keyContext = (TPM2B*)malloc(sizeof(TPM2B))) != NULL)
+    if ((keyContext = (TPM2B*)wolfSSL_Malloc(sizeof(TPM2B))) != NULL)
     {
         keyContext->size = bits / 8;
         memcpy(keyContext->buffer, userKey, keyContext->size);
@@ -1933,7 +1934,7 @@ AES_destroy_key(PVOID key)
 {
     TPM2B* keyContext = (TPM2B*)key;
     memset(keyContext, 0x00, sizeof(TPM2B));
-    free(keyContext);
+    wolfSSL_Free(keyContext);
     return CRYPT_SUCCESS;
 }
 

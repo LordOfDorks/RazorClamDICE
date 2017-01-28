@@ -48,6 +48,7 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 #include "TisTpmDrv.h"
+#include "Test.h"
 #define RAZORCLAMVERSION "V2.01"
 #define SPECIFIC_CYCLE_DELAY (64)
 #define DEFAULT_FILE_HANDLE_STDOUT (1)
@@ -175,6 +176,7 @@ int main(void)
   assert(retVal == HAL_OK);
   printf("TPM available and ready.\r\n");
 
+  testme();
   /* USER CODE END 2 */
 
   /* Infinite loop */
