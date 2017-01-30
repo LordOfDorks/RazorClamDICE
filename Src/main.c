@@ -157,8 +157,7 @@ int main(void)
 
   // Make sure we have a TPM, not having one is fatal
   uint32_t retVal = 0;
-  if(((retVal = DetectTpm()) != HAL_OK) ||
-     ((retVal = RequestLocality(TIS_LOCALITY_0)) != HAL_OK))
+  if((retVal = DetectTpm()) != HAL_OK)
   {
       FULLSTOP("No TPM found!");
   }

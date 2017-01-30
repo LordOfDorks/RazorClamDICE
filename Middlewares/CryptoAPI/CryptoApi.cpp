@@ -1,7 +1,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <CryptoAPI.h>
+#include <CryptoAPI.h>
 
 // Documentation @ https://wolfssl.com/wolfSSL/Docs-wolfssl-manual-18-wolfcrypt-api-reference.html
 extern "C" {
@@ -16,8 +16,8 @@ extern "C" {
 }
 
 // Use the FreeRTOS heap
-#define malloc pvPortMalloc
-#define free vPortFree
+//#define malloc pvPortMalloc
+//#define free vPortFree
 
 typedef uint8_t UINT8;
 typedef uint8_t BYTE;
@@ -151,23 +151,6 @@ BYTE SHA384_DER_STRING[] = SHA384_DER;
 BYTE SHA512_DER_STRING[] = SHA512_DER;
 
 typedef INT16 CRYPT_RESULT;
-
-typedef struct {
-    UINT16        size;
-    BYTE          buffer[1024];
-} TPM2B;
-
-typedef struct {
-    UINT32        exponent;      // The public exponent pointer
-    TPM2B        *publicKey;     // Pointer to the public modulus
-    TPM2B        *privateKey;    // The private exponent (not a prime)
-} RSA_KEY;
-
-typedef struct _HASH_STATE
-{
-    void* state;
-    TPM_ALG_ID hashAlg;
-} CPRI_HASH_STATE, *PCPRI_HASH_STATE;
 
 #define CRYPT_FAIL          ((CRYPT_RESULT)  1)
 #define CRYPT_SUCCESS       ((CRYPT_RESULT)  0)

@@ -1079,7 +1079,7 @@ CryptDecryptRSA(
             pAssert(retVal != CRYPT_SCHEME);
 
             // Set the return size
-            pAssert(dSize <= UINT16_MAX);
+//            pAssert(dSize <= UINT16_MAX);
             *dataOutSize = (UINT16)dSize;
 
             // CRYPT_PARAMETER -> TPM_RC_VALUE, CRYPT_FAIL -> TPM_RC_VALUE
@@ -1141,7 +1141,7 @@ CryptEncryptRSA(
     retVal = _cpri__EncryptRSA(&cOutSize,cipherOut, &key, scheme->scheme,
                                dataInSize, dataIn, hashAlg, label);
 
-    pAssert (cOutSize <= UINT16_MAX);
+//    pAssert (cOutSize <= UINT16_MAX);
     *cipherOutSize = (UINT16)cOutSize;
     // CRYPT_PARAMETER -> TPM_RC_VALUE, CRYPT_SCHEME -> TPM_RC_SCHEME
     return TranslateCryptErrors(retVal);
@@ -1201,7 +1201,7 @@ CryptSignRSA(
                                 sig->sigAlg,
                                 sig->signature.any.hashAlg,
                                 hashData->t.size, hashData->t.buffer);
-        pAssert(signSize <= UINT16_MAX);
+//        pAssert(signSize <= UINT16_MAX);
         sig->signature.rsassa.sig.t.size = (UINT16)signSize;
 
         // CRYPT_SCHEME -> TPM_RC_SCHEME; CRYPT_PARAMTER -> TPM_RC_VALUE

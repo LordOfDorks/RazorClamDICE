@@ -6581,10 +6581,11 @@ typedef UINT64              HASH_CONTEXT[MAX_HASH_STATE_SIZE/sizeof(UINT64)];
 
 #ifndef    CPRIRNG_FP_H
 #define    CPRIRNG_FP_H
-
+extern "C" {
 //****************************************************************************
 //** Random Number Generation
 //****************************************************************************
+
 BOOL
 _cpri__RngStartup(void);
 
@@ -6604,11 +6605,12 @@ INT32       randomSize,
 BYTE       *buffer
 );
 
+}
 #endif //CPRIRNG_FP_H
 
 #ifndef    CPRIHASH_FP_H
 #define    CPRIHASH_FP_H
-
+extern "C" {
 //*** _cpri__HashStartup()
 // Function that is called to initialize the hash service. In this implementation,
 // this function does nothing but it is called by the CryptUtilStartup() function
@@ -6857,12 +6859,12 @@ TPM2B           *partyVInfo,        // IN: PartyVInfo
 UINT32           sizeInBits,        // IN: size of generated key in bits
 BYTE            *keyStream          // OUT: key buffer
 );
-
+}
 #endif //CPRIHASH_FP_H
 
 #ifndef    CPRISYM_FP_H
 #define    CPRISYM_FP_H
-
+extern "C" {
 //** Utility Functions
 //
 //*** _cpri_SymStartup()
@@ -7072,13 +7074,13 @@ BYTE        *dIn            // IN: data buffer
     ((BYTE *)dIn)                  \
     )
 
-
+}
 #endif //CPRISYM_FP_H
 
 #ifdef  TPM_ALG_RSA
 #ifndef    CPRIRSA_FP_H
 #define    CPRIRSA_FP_H
-
+extern "C" {
 //*** _cpri__TestKeyRSA()
 // This function computes the private exponent 'de' = 1 mod ('p'-1)*('q'-1)
 // The inputs are the public modulus and one of the primes or two primes.
@@ -7213,7 +7215,7 @@ UINT32           sigInSize,     // IN: size of signature
 BYTE            *sigIn,         // IN: signature
 UINT16           saltSize       // IN: salt size for PSS
 );
-
+}
 #endif //CPRIRSA_FP_H
 #endif //TPM_ALG_RSA
 

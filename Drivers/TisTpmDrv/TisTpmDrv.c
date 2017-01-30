@@ -116,12 +116,12 @@ TpmSubmit(
     *rspSize = 0;
 
     // 250ms max to submit the command
-    HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
     if((result = TpmSubmitCmd(cmd, cmdLen, 500)) != HAL_OK)
     {
         goto Cleanup;
     }
-    HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
     do
     {
@@ -149,12 +149,12 @@ TpmSubmit(
         attempt++;
 
         // 250ms max to receive the response
-        HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
         if((result = TpmReceiveRsp(rsp, rspMax, rspSize, 500)) != HAL_OK)
         {
             goto Cleanup;
         }
-        HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
         if(*rspSize != 0)
         {
             break;
@@ -169,7 +169,7 @@ TpmSubmit(
     }
     while(*rspSize == 0);
 Cleanup:
-    HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
     return result;
 }
 
@@ -641,11 +641,11 @@ ReadRegisterI2C(
     // Wait out the guard time of the previous command
     if((LastOperation == 'w') && (WW_GuardTime != 0))
     {
-    	SpinWait(WW_GuardTime);
+        SpinWait(WW_GuardTime);
     }
     if((LastOperation == 'r') && (WR_GuardTime != 0))
     {
-    	SpinWait(WR_GuardTime);
+        SpinWait(WR_GuardTime);
     }
 
     LastOperation = 'w';
@@ -655,7 +655,7 @@ ReadRegisterI2C(
                                              (TCGTIS_I2C_ADDRESS << 1),
                                              &reg,
                                              sizeof(reg),
-                                             10)) == HAL_OK)
+                                             50)) == HAL_OK)
         {
             break;
         }
@@ -673,7 +673,7 @@ ReadRegisterI2C(
                                             (TCGTIS_I2C_ADDRESS << 1),
                                              pbBuffer,
                                              cbBuffer,
-                                             10)) == HAL_OK)
+                                             50)) == HAL_OK)
         {
             break;
         }

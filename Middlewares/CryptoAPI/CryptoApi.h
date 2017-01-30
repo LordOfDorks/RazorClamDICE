@@ -75,6 +75,9 @@ typedef struct _HASH_STATE
 } CPRI_HASH_STATE, *PCPRI_HASH_STATE;
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 UINT16 _cpri__StartHash(TPM_ALG_ID hashAlg,
     BOOL sequence,
     PCPRI_HASH_STATE hashState);
@@ -260,3 +263,6 @@ _cpri__AESEncryptOFB(((BYTE *)dOut), \
     ((BYTE *)dIn))
 #endif
 
+#ifdef __cplusplus
+} //extern "C"
+#endif

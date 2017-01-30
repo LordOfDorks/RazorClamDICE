@@ -107,8 +107,6 @@ TpmFail(
     int code
     )
 {
-    printf("FATAL: Function:%s() @Line:%d Code:%d(0x%08x)\r\nMCU HALTED!\r\n", function, line, code, code);
-    HAL_GPIO_WritePin(GPIOB, LD3_Pin, GPIO_PIN_SET);
-    for(;;); // This is a fatal condition. We have to halt execution.
+    FullStop("TpmFail", function, "", line);
     return 0;
 }

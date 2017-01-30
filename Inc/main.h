@@ -80,7 +80,7 @@ void FullStop(const char *why, const char *func, const char *file, int line);
 #define DebugPrintf(...)
 #define FULLSTOP(__WHY) for(;;);
 #endif
-
+ 
 #ifdef __cplusplus
 } //extern "C"
 #ifndef NDEBUG
